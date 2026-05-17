@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>السبحة الإلكترونية</title>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --green-dark: #0d2b1a;
+      --green-mid: #1a4a2e;
+      --green-light: #2a6b45;
+      --gold: #c9a84c;
+      --gold-light: #e8c96a;
+      --gold-glow: #f5d97a;
+      --black: #080f0b;
+      --cream: #f5eed8;
+      --cream-dim: #c8bb95;
+      --bg: #0a1f12;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Amiri', serif;
+      background: var(--bg);
+      color: var(--cream);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* ─── Islamic SVG Background ─── */
+    .bg-pattern {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.07;
+      overflow: hidden;
+    }
+    .bg-pattern svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Crescent + Stars */
+    .crescent-wrap {
+      position: fixed;
+      top: -60px;
+      left: 50%;
+      transform: translateX(-50%);
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0.18;
+    }
+
+    /* ─── Header ─── */
+    header {
+      width: 100%;
+      text-align: center;
+      padding: 2.5rem 1rem 1rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .quran-verse {
+      font-family: 'Scheherazade New', serif;
+      font-size: clamp(1.5rem, 5vw, 2.4rem);
+      color: var(--gold-light);
+      letter-spacing: 0.04em;
+      text-shadow: 0 0 22px rgba(201,168,76,0.45);
+      line-height: 1.7;
+    }
+
+    .divider {
+      margin: 0.9rem auto;
+      width: 160px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      border-radius: 2px;
+    }
+
+    .hadith-box {
+      max-width: 680px;
+      margin: 0.3rem auto 0;
+      padding: 1rem 1.6rem;
+      background: rgba(26,74,46,0.28);
+      border: 1px solid rgba(201,168,76,0.2);
+      border-radius: 12px;
+      font-size: clamp(0.82rem, 2.2vw, 1rem);
+      color: var(--cream-dim);
+      line-height: 2;
+      font-style: italic;
+    }
+    .hadith-box strong {
+      color: var(--gold);
+      font-style: normal;
+      display: block;
+      margin-bottom: 0.2rem;
+    }
+
+    /* ─── Main Counter Area ─── */
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2rem;
+      width: 100%;
+      padding: 1.5rem 1rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Ornamental Frame */
+    .counter-frame {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .counter-label {
+      font-family: 'Scheherazade New', serif;
+      font-size: clamp(1rem, 3vw, 1.3rem);
+      color: var(--gold);
+      opacity: 0.85;
+      letter-spacing: 0.08em;
+    }
+
+    .counter-display {
+      font-family: 'Scheherazade New', serif;
+      font-size: clamp(5rem, 22vw, 9rem);
+      font-weight: 700;
+      color: var(--gold-glow);
+      line-height: 1;
+      text-shadow:
+        0 0 30px rgba(245,217,122,0.55),
+        0 0 80px rgba(201,168,76,0.2);
+      transition: transform 0.08s ease, text-shadow 0.15s ease;
+      user-select: none;
+      min-width: 3ch;
+      text-align: center;
+    }
+
+    .counter-display.pulse {
+      transform: scale(1.07);
+      text-shadow:
+        0 0 50px rgba(245,217,122,0.9),
+        0 0 120px rgba(201,168,76,0.5);
+    }
+
+    /* Arabic milestone message */
+    .milestone {
+      font-family: 'Scheherazade New', serif;
+      font-size: clamp(0.95rem, 3vw, 1.2rem);
+      color: var(--gold-light);
+      min-height: 1.6em;
+      transition: opacity 0.4s;
+      opacity: 0;
+      text-align: center;
+    }
+    .milestone.show { opacity: 1; }
+
+    /* ─── Main Tasbih Button ─── */
+    .tasbih-btn {
+      width: clamp(160px, 42vw, 210px);
+      height: clamp(160px, 42vw, 210px);
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      position: relative;
+      background: radial-gradient(circle at 38% 35%, #2a6b45, #0d3320 70%);
+      box-shadow:
+        0 0 0 6px rgba(201,168,76,0.25),
+        0 0 0 12px rgba(201,168,76,0.1),
+        0 8px 40px rgba(0,0,0,0.7),
+        inset 0 2px 6px rgba(255,255,255,0.1);
+      transition:
+        transform 0.1s cubic-bezier(.17,.67,.49,1.5),
+        box-shadow 0.15s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 0.3rem;
+      outline: none;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    .tasbih-btn::before {
+      content: '';
+      position: absolute;
+      inset: 8px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(201,168,76,0.35);
+      pointer-events: none;
+    }
+    .tasbih-btn::after {
+      content: '';
+      position: absolute;
+      inset: 18px;
+      border-radius: 50%;
+      border: 1px solid rgba(201,168,76,0.15);
+      pointer-events: none;
+    }
+
+    .tasbih-btn-text {
+      font-family: 'Scheherazade New', serif;
+      font-size: clamp(1.6rem, 6vw, 2.2rem);
+      color: var(--gold-light);
+      text-shadow: 0 0 14px rgba(201,168,76,0.5);
+      pointer-events: none;
+    }
+
+    .tasbih-btn:active,
+    .tasbih-btn.pressed {
+      transform: scale(0.93);
+      box-shadow:
+        0 0 0 6px rgba(201,168,76,0.5),
+        0 0 0 14px rgba(201,168,76,0.2),
+        0 0 40px rgba(201,168,76,0.4),
+        0 4px 20px rgba(0,0,0,0.5),
+        inset 0 2px 6px rgba(255,255,255,0.08);
+    }
+
+    /* ripple */
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(201,168,76,0.25);
+      transform: scale(0);
+      animation: ripple-anim 0.55s ease-out forwards;
+      pointer-events: none;
+    }
+    @keyframes ripple-anim {
+      to { transform: scale(2.8); opacity: 0; }
+    }
+
+    /* ─── Reset Button ─── */
+    .reset-btn {
+      background: transparent;
+      border: 1.5px solid rgba(201,168,76,0.35);
+      color: var(--cream-dim);
+      font-family: 'Amiri', serif;
+      font-size: clamp(0.9rem, 2.5vw, 1.05rem);
+      padding: 0.55rem 1.8rem;
+      border-radius: 30px;
+      cursor: pointer;
+      letter-spacing: 0.06em;
+      transition: all 0.2s;
+      position: relative;
+      z-index: 2;
+    }
+    .reset-btn:hover {
+      background: rgba(201,168,76,0.12);
+      border-color: var(--gold);
+      color: var(--gold-light);
+    }
+    .reset-btn:active { transform: scale(0.96); }
+
+    /* Sound toggle */
+    .sound-toggle {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--cream-dim);
+      cursor: pointer;
+      user-select: none;
+    }
+    .sound-toggle input { display: none; }
+    .sound-toggle .track {
+      width: 36px;
+      height: 20px;
+      border-radius: 10px;
+      background: rgba(201,168,76,0.15);
+      border: 1px solid rgba(201,168,76,0.3);
+      position: relative;
+      transition: background 0.25s;
+    }
+    .sound-toggle input:checked + .track { background: rgba(201,168,76,0.5); }
+    .sound-toggle .knob {
+      position: absolute;
+      top: 2px; left: 2px;
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: var(--gold);
+      transition: transform 0.25s;
+    }
+    .sound-toggle input:checked ~ .knob,
+    .sound-toggle input:checked + .track .knob { transform: translateX(16px); }
+
+    /* ─── Footer ─── */
+    footer {
+      width: 100%;
+      text-align: center;
+      padding: 1rem;
+      font-size: 0.78rem;
+      color: rgba(201,168,76,0.4);
+      letter-spacing: 0.1em;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* ─── Floating beads decoration ─── */
+    .bead {
+      position: fixed;
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #c9a84c 30%, #7a5c1a);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 3;
+      animation: float-up 1s ease-out forwards;
+    }
+    @keyframes float-up {
+      0% { transform: translateY(0) scale(1); opacity: 0.8; }
+      100% { transform: translateY(-80px) scale(0.4); opacity: 0; }
+    }
+
+    /* ─── Islamic Geometric Corners ─── */
+    .corner {
+      position: fixed;
+      width: 90px; height: 90px;
+      pointer-events: none;
+      opacity: 0.18;
+      z-index: 1;
+    }
+    .corner-tl { top: 0; right: 0; }
+    .corner-br { bottom: 0; left: 0; transform: rotate(180deg); }
+
+    @media (max-width: 480px) {
+      header { padding-top: 1.5rem; }
+      .hadith-box { font-size: 0.8rem; padding: 0.8rem 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Islamic geometric background pattern -->
+  <div class="bg-pattern">
+    <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+      <defs>
+        <pattern id="geo" x="0" y="0" width="80" height="80" patternUnits="userSpaceOnUse">
+          <!-- 8-pointed star -->
+          <polygon points="40,5 47,30 72,28 53,44 61,70 40,55 19,70 27,44 8,28 33,30" fill="none" stroke="#c9a84c" stroke-width="0.8"/>
+          <circle cx="40" cy="40" r="12" fill="none" stroke="#c9a84c" stroke-width="0.5"/>
+          <line x1="40" y1="0" x2="40" y2="80" stroke="#c9a84c" stroke-width="0.3"/>
+          <line x1="0" y1="40" x2="80" y2="40" stroke="#c9a84c" stroke-width="0.3"/>
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#geo)"/>
+    </svg>
+  </div>
+
+  <!-- Crescent moon decoration -->
+  <div class="crescent-wrap">
+    <svg width="260" height="180" viewBox="0 0 260 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M130 20 C170 20, 200 55, 200 100 C200 145, 170 178, 130 178 C160 165, 180 135, 180 100 C180 65, 160 35, 130 20Z" fill="#c9a84c"/>
+      <!-- Stars -->
+      <polygon points="210,35 213,45 223,45 215,51 218,61 210,55 202,61 205,51 197,45 207,45" fill="#c9a84c" opacity="0.8"/>
+      <polygon points="230,60 232,67 239,67 233,71 235,78 230,74 225,78 227,71 221,67 228,67" fill="#c9a84c" opacity="0.5"/>
+    </svg>
+  </div>
+
+  <!-- Corner ornaments -->
+  <div class="corner corner-tl">
+    <svg viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg" fill="none">
+      <path d="M0,0 L90,0 L90,10 Q50,10 10,50 L0,90 Z" fill="#c9a84c" opacity="0.5"/>
+      <path d="M0,0 L70,0 Q30,0 0,30 Z" fill="#c9a84c"/>
+      <circle cx="0" cy="0" r="18" fill="#c9a84c" opacity="0.3"/>
+    </svg>
+  </div>
+  <div class="corner corner-br">
+    <svg viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg" fill="none">
+      <path d="M0,0 L90,0 L90,10 Q50,10 10,50 L0,90 Z" fill="#c9a84c" opacity="0.5"/>
+      <path d="M0,0 L70,0 Q30,0 0,30 Z" fill="#c9a84c"/>
+      <circle cx="0" cy="0" r="18" fill="#c9a84c" opacity="0.3"/>
+    </svg>
+  </div>
+
+  <!-- Header -->
+  <header>
+    <div class="quran-verse">سَبِّحِ اسْمَ رَبِّكَ الْأَعْلَى</div>
+    <div class="divider"></div>
+    <div class="hadith-box">
+      <strong>قال رسول الله ﷺ:</strong>
+      كَلِمَتَانِ خَفِيفَتَانِ عَلَى اللِّسَانِ، ثَقِيلَتَانِ فِي الْمِيزَانِ، حَبِيبَتَانِ إِلَى الرَّحْمَنِ:
+      سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، سُبْحَانَ اللَّهِ الْعَظِيمِ.
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main>
+    <div class="counter-frame">
+      <div class="counter-label">عدد التسبيحات</div>
+      <div class="counter-display" id="counter">٠</div>
+      <div class="milestone" id="milestone"></div>
+    </div>
+
+    <button class="tasbih-btn" id="tasbihBtn" aria-label="سبّح">
+      <span class="tasbih-btn-text">سبّح</span>
+    </button>
+
+    <div style="display:flex;flex-direction:column;align-items:center;gap:1rem;">
+      <button class="reset-btn" id="resetBtn">↺ إعادة التصفير</button>
+
+      <label class="sound-toggle">
+        <span>الصوت</span>
+        <input type="checkbox" id="soundToggle" checked />
+        <div class="track"><div class="knob"></div></div>
+      </label>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer>Powered by ibrahim w.m.</footer>
+
+  <script>
+    // ── State ──
+    let count = 0;
+    let soundOn = true;
+
+    // ── Elements ──
+    const counterEl = document.getElementById('counter');
+    const btn = document.getElementById('tasbihBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const milestoneEl = document.getElementById('milestone');
+    const soundToggle = document.getElementById('soundToggle');
+
+    // ── Arabic numerals ──
+    const toArabic = n => n.toString().replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+
+    // ── Audio context ──
+    let audioCtx = null;
+    function getAudioCtx() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      return audioCtx;
+    }
+
+    function playClick() {
+      if (!soundOn) return;
+      try {
+        const ctx = getAudioCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.08);
+        gain.gain.setValueAtTime(0.18, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.12);
+      } catch(e) {}
+    }
+
+    // ── Milestones ──
+    const milestones = {
+      33:  'سُبْحَانَ اللَّهِ ٣٣ مرة 🌿',
+      34:  'الْحَمْدُ لِلَّهِ ٣٣ مرة 🌟',
+      99:  'سُبْحَانَ اللَّهِ العظيم ✨',
+      100: 'مائة تسبيحة 🌙 بارك الله فيك',
+    };
+    let milestoneTimeout;
+    function checkMilestone(n) {
+      const msg = milestones[n];
+      clearTimeout(milestoneTimeout);
+      if (msg) {
+        milestoneEl.textContent = msg;
+        milestoneEl.classList.add('show');
+        milestoneTimeout = setTimeout(() => milestoneEl.classList.remove('show'), 2800);
+      } else {
+        milestoneEl.classList.remove('show');
+      }
+    }
+
+    // ── Floating bead FX ──
+    function spawnBead() {
+      const b = document.createElement('div');
+      b.className = 'bead';
+      const rect = btn.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const angle = Math.random() * Math.PI * 2;
+      const r = rect.width / 2 * 0.7;
+      b.style.left = (cx + Math.cos(angle) * r - 5) + 'px';
+      b.style.top  = (cy + Math.sin(angle) * r - 5) + 'px';
+      document.body.appendChild(b);
+      b.addEventListener('animationend', () => b.remove());
+    }
+
+    // ── Ripple FX ──
+    function spawnRipple(e) {
+      const r = document.createElement('div');
+      r.className = 'ripple';
+      const rect = btn.getBoundingClientRect();
+      const size = rect.width;
+      r.style.width = r.style.height = size + 'px';
+      r.style.left = r.style.top = '0';
+      btn.appendChild(r);
+      r.addEventListener('animationend', () => r.remove());
+    }
+
+    // ── Increment ──
+    function increment(e) {
+      count++;
+      counterEl.textContent = toArabic(count);
+
+      // Pulse
+      counterEl.classList.remove('pulse');
+      void counterEl.offsetWidth;
+      counterEl.classList.add('pulse');
+      setTimeout(() => counterEl.classList.remove('pulse'), 180);
+
+      // Button pressed flash
+      btn.classList.add('pressed');
+      setTimeout(() => btn.classList.remove('pressed'), 120);
+
+      spawnRipple(e);
+      spawnBead();
+      playClick();
+      checkMilestone(count);
+    }
+
+    // ── Reset ──
+    function reset() {
+      count = 0;
+      counterEl.textContent = toArabic(0);
+      milestoneEl.classList.remove('show');
+    }
+
+    // ── Sound toggle ──
+    soundToggle.addEventListener('change', () => { soundOn = soundToggle.checked; });
+
+    // ── Events ──
+    btn.addEventListener('click', increment);
+    resetBtn.addEventListener('click', reset);
+
+    // Keyboard support
+    document.addEventListener('keydown', e => {
+      if (e.code === 'Space' || e.code === 'Enter') {
+        e.preventDefault();
+        increment(e);
+      }
+    });
+  </script>
+</body>
+</html>
